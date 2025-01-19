@@ -12,8 +12,8 @@ class AlbumsRepository {
     createdAt,
   }) {
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING id',
-      values: [id, name, year, createdAt, createdAt],
+      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $4) RETURNING id',
+      values: [id, name, year, createdAt],
     };
 
     const result = await this._pool.query(query);
