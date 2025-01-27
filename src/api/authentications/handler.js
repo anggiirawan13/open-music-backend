@@ -19,7 +19,7 @@ class AuthenticationsHandler {
     const accessToken = this._tokenManager.generateAccessToken({ userId });
     const refreshToken = this._tokenManager.generateRefreshToken({ userId });
 
-    await this._authenticationsService.addRefreshToken(refreshToken);
+    await this._authenticationsService.save(refreshToken);
 
     const response = h.response({
       status: 'success',
@@ -29,7 +29,9 @@ class AuthenticationsHandler {
         refreshToken,
       },
     });
+
     response.code(201);
+
     return response;
   }
 
@@ -55,7 +57,7 @@ class AuthenticationsHandler {
 
     const { refreshToken } = request.payload;
     await this._authenticationsService.verifyRefreshToken(refreshToken);
-    await this._authenticationsService.deleteRefreshToken(refreshToken);
+    await this._authenticationsService.deleteByRefreshToken(refreshToken);
 
     return {
       status: 'success',

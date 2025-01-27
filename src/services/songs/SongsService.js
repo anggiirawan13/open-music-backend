@@ -1,7 +1,10 @@
-const { nanoid } = require('nanoid');
-const { mapDBToModel } = require('../../utils/songs');
+const { mapDBToModel } = require('../../models/songs');
+
+// Exception
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+
+// Repository
 const SongsRepository = require('../../repo/songs');
 const AlbumsRepository = require('../../repo/albums');
 
@@ -11,7 +14,7 @@ class SongsService {
     this._albumsRepository = new AlbumsRepository();
   }
 
-  async addSong({
+  async save({
     title,
     year,
     genre,
@@ -19,20 +22,15 @@ class SongsService {
     duration,
     albumId,
   }) {
-    const id = `song-${nanoid(16)}`;
-    const createdAt = new Date().toISOString();
-
     if (albumId) await this.validateAlbumId(albumId);
 
-    const result = await this._songsRepository.insertSong({
-      id,
+    const result = await this._songsRepository.save({
       title,
       year,
       genre,
       performer,
       duration,
       albumId,
-      createdAt,
     });
 
     if (!result) throw new InvariantError('Song gagal ditambahkan');
@@ -40,20 +38,20 @@ class SongsService {
     return result;
   }
 
-  async getSongs(title, performer) {
-    const songs = await this._songsRepository.findAllSongs(title, performer);
+  async findAll(title, performer) {
+    const songs = await this._songsRepository.findAll(title, performer);
     return songs.map(mapDBToModel);
   }
 
-  async getSongById(id) {
-    const song = await this._songsRepository.findSongById(id);
+  async findById(id) {
+    const song = await this._songsRepository.findById(id);
 
     if (!song) throw new NotFoundError('Song tidak ditemukan');
 
     return mapDBToModel(song);
   }
 
-  async editSongById(id, {
+  async updateById(id, {
     title,
     year,
     genre,
@@ -65,7 +63,7 @@ class SongsService {
 
     if (albumId) await this.validateAlbumId(albumId);
 
-    const result = await this._songsRepository.updateSongById(id, {
+    const result = await this._songsRepository.updateById(id, {
       title,
       year,
       genre,
@@ -78,14 +76,14 @@ class SongsService {
     if (!result) throw new NotFoundError('Gagal memperbarui song. Id tidak ditemukan');
   }
 
-  async deleteSongById(id) {
-    const result = await this._songsRepository.deleteSongById(id);
+  async deleteById(id) {
+    const result = await this._songsRepository.deleteById(id);
 
     if (!result) throw new NotFoundError('Song gagal dihapus. Id tidak ditemukan');
   }
 
   async validateAlbumId(albumId) {
-    const album = await this._albumsRepository.findAlbumById(albumId);
+    const album = await this._albumsRepository.findById(albumId);
     if (!album) throw new NotFoundError('Album tidak ditemukan');
   }
 }

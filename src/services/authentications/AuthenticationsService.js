@@ -1,40 +1,26 @@
-const { Pool } = require('pg');
+// Repository
+const AuthenticationsRepository = require('../../repo/authentications');
+
+// Exception
 const InvariantError = require('../../exceptions/InvariantError');
 
 class AuthenticationsService {
   constructor() {
-    this._pool = new Pool();
+    this._authenticationsRepository = new AuthenticationsRepository();
   }
 
-  async addRefreshToken(refreshToken) {
-    const query = {
-      text: 'INSERT INTO authentications VALUES($1)',
-      values: [refreshToken],
-    };
-
-    await this._pool.query(query);
+  async save(refreshToken) {
+    await this._authenticationsRepository.save(refreshToken);
   }
 
   async verifyRefreshToken(refreshToken) {
-    const query = {
-      text: 'SELECT refresh_token FROM authentications WHERE refresh_token = $1',
-      values: [refreshToken],
-    };
+    const result = await this._authenticationsRepository.verifyRefreshToken(refreshToken);
 
-    const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new InvariantError('Refresh token tidak valid');
-    }
+    if (!result.length) throw new InvariantError('Refresh token tidak valid');
   }
 
-  async deleteRefreshToken(refreshToken) {
-    const query = {
-      text: 'DELETE FROM authentications WHERE refresh_token = $1',
-      values: [refreshToken],
-    };
-
-    await this._pool.query(query);
+  async deleteByRefreshToken(refreshToken) {
+    await this._authenticationsRepository.deleteByRefreshToken(refreshToken);
   }
 }
 

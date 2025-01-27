@@ -22,7 +22,7 @@ class SongsHandler {
       albumId,
     } = request.payload;
 
-    const songId = await this._service.addSong({
+    const songId = await this._service.save({
       title,
       year,
       genre,
@@ -49,7 +49,7 @@ class SongsHandler {
 
     this._validator.validateSongQuery({ title, performer });
 
-    const songs = await this._service.getSongs(title, performer);
+    const songs = await this._service.findAll(title, performer);
     return {
       status: 'success',
       data: {
@@ -60,7 +60,7 @@ class SongsHandler {
 
   async getSongByIdHandler(request) {
     const { id } = request.params;
-    const song = await this._service.getSongById(id);
+    const song = await this._service.findById(id);
     return {
       status: 'success',
       data: {
@@ -73,7 +73,7 @@ class SongsHandler {
     this._validator.validateSongPayload(request.payload);
     const { id } = request.params;
 
-    await this._service.editSongById(id, request.payload);
+    await this._service.updateById(id, request.payload);
 
     return {
       status: 'success',
@@ -83,7 +83,7 @@ class SongsHandler {
 
   async deleteSongByIdHandler(request) {
     const { id } = request.params;
-    await this._service.deleteSongById(id);
+    await this._service.deleteById(id);
 
     return {
       status: 'success',

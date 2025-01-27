@@ -4,7 +4,7 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.createTable('playlist_log_activities', {
+  pgm.createTable('playlist_song_activities', {
     id: {
       type: 'VARCHAR(16)',
       primaryKey: true,
@@ -32,7 +32,7 @@ exports.up = (pgm) => {
     },
   });
 
-  pgm.addConstraint('playlist_log_activities', 'fk_playlist_log_activities.user_id_users.id', 'FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE');
+  pgm.addConstraint('playlist_song_activities', 'fk_playlist_song_activities.user_id_users.id', 'FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE');
 };
 
 /**
@@ -41,5 +41,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropTable('playlist_log_activities');
+  pgm.dropTable('playlist_song_activities');
 };

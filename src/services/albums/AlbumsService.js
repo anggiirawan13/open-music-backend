@@ -1,7 +1,8 @@
-const { nanoid } = require('nanoid');
-const { mapDBToModel } = require('../../utils/albums');
+// Exception
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+
+// Repository
 const AlbumsRepository = require('../../repo/albums');
 const SongsRepository = require('../../repo/songs');
 
@@ -11,15 +12,13 @@ class AlbumsService {
     this._songsRepository = new SongsRepository();
   }
 
-  async addAlbum({ name, year }) {
-    const id = `album-${nanoid(16)}`;
-    const createdAt = new Date().toISOString();
-
-    const result = await this._albumsRepository.insertAlbum({
-      id,
+  async save({
+    name,
+    year,
+  }) {
+    const result = await this._albumsRepository.save({
       name,
       year,
-      createdAt,
     });
 
     if (!result) throw new InvariantError('Album gagal ditambahkan');
@@ -27,36 +26,30 @@ class AlbumsService {
     return result;
   }
 
-  async getAlbums() {
-    const albums = await this._albumsRepository.findAllAlbums();
-    return albums.map(mapDBToModel);
+  async findAll() {
+    return this._albumsRepository.findAll();
   }
 
-  async getAlbumById(id) {
-    const album = await this._albumsRepository.findAlbumById(id);
+  async findById(id) {
+    const album = await this._albumsRepository.findById(id);
     if (!album) throw new NotFoundError('Album tidak ditemukan');
 
-    const songs = await this._songsRepository.findSongsByAlbumId(id);
+    const songs = await this._songsRepository.findByAlbumId(id);
+
     return {
       ...album,
       songs,
     };
   }
 
-  async editAlbumById(id, { name, year }) {
-    const updatedAt = new Date().toISOString();
-
-    const result = await this._albumsRepository.updateAlbumById(id, {
-      name,
-      year,
-      updatedAt,
-    });
+  async updateById(id, { name, year }) {
+    const result = await this._albumsRepository.updateById(id, name, year);
 
     if (!result) throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
   }
 
-  async deleteAlbumById(id) {
-    const result = await this._albumsRepository.deleteAlbumById(id);
+  async deleteById(id) {
+    const result = await this._albumsRepository.deleteById(id);
 
     if (!result) throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
   }
