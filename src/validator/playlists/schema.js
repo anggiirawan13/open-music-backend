@@ -12,4 +12,13 @@ const PlaylistSongPayloadSchema = Joi.object({
   songId: Joi.string().min(1).max(21).required(),
 });
 
-module.exports = { PlaylistPayloadSchema, PlaylistParamSchema, PlaylistSongPayloadSchema };
+const ExportPlaylistPayloadSchema = Joi.object({
+  targetEmail: Joi.string().email().required(),
+});
+
+module.exports = {
+  PlaylistPayloadSchema,
+  PlaylistParamSchema,
+  PlaylistSongPayloadSchema,
+  ExportPlaylistPayloadSchema,
+};

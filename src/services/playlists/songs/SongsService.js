@@ -9,10 +9,11 @@ const PlaylistSongsRepository = require('../../../repo/playlists/songs');
 const PlaylistActivitiesRepository = require('../../../repo/playlists/songs/activities');
 
 class SongsService {
-  constructor(collaborationService, playlistsService) {
+  constructor(collaborationService, playlistsService, cacheService) {
     // Service
     this._collaborationService = collaborationService;
     this._playlistsService = playlistsService;
+    this._cacheService = cacheService;
 
     // Repository
     this._playlistSongsRepository = new PlaylistSongsRepository();
@@ -37,6 +38,8 @@ class SongsService {
       song.title,
       'add',
     );
+
+    await this._cacheService.delete(`playlistsongs:${playlistId}`);
 
     return result;
   }
@@ -72,6 +75,8 @@ class SongsService {
       song.title,
       'delete',
     );
+
+    await this._cacheService.delete(`playlistsongs:${playlistId}`);
   }
 
   async validateSongId(songId) {

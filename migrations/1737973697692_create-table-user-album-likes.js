@@ -6,15 +6,15 @@
 exports.up = (pgm) => {
   pgm.createTable('user_album_likes', {
     id: {
-      type: 'VARCHAR(32)',
+      type: 'VARCHAR(21)',
       primaryKey: true,
     },
     album_id: {
-      type: 'VARCHAR(22)',
+      type: 'VARCHAR(23)',
       notNull: true,
     },
     user_id: {
-      type: 'VARCHAR(21)',
+      type: 'VARCHAR(22)',
       notNull: true,
     },
   });

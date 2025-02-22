@@ -4,7 +4,7 @@ class CacheService {
   constructor() {
     this._client = redis.createClient({
       socket: {
-        host: process.env.REDIS_SERVER,
+        host: process.env.REDIS_HOST,
       },
     });
 
@@ -15,7 +15,7 @@ class CacheService {
     this._client.connect();
   }
 
-  async set(key, value, expirationInSecond = 3600) {
+  async set(key, value, expirationInSecond = 1800) {
     await this._client.set(key, value, {
       EX: expirationInSecond,
     });
@@ -23,9 +23,7 @@ class CacheService {
 
   async get(key) {
     const result = await this._client.get(key);
-
     if (result === null) throw new Error('Cache tidak ditemukan');
-
     return result;
   }
 
