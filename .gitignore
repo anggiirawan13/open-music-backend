@@ -7,3 +7,6 @@ node_modules
 # Environment
 .env
 .prod.env
+
+# Uploads
+src/api/uploads/file/images/*
