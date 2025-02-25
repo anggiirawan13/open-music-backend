@@ -4,11 +4,11 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.addColumn('albums', {
-    cover: {
-      type: 'TEXT',
-    },
-  });
+    pgm.addColumn('albums', {
+        cover: {
+            type: 'TEXT',
+        },
+    });
 };
 
 /**
@@ -17,5 +17,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropColumn('albums', 'cover');
+    pgm.dropColumn('albums', 'cover');
 };
