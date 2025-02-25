@@ -26,7 +26,7 @@ class StorageService {
   async postCover(cover, albumId) {
     await this._deleteOldCoverFromDirectory(albumId);
 
-    const coverUrl = `${process.env.HOST}:${process.env.PORT}/upload/images/${cover}`;
+    const coverUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${cover}`;
     await this._storageRepository.updateCover(coverUrl, albumId);
   }
 
