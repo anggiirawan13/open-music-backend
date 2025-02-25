@@ -1,7 +1,11 @@
+// Common
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 const path = require('path');
+
+// Config
+const config = require('./utils/config');
 
 // Exceptions
 const ClientError = require('./exceptions/ClientError');
@@ -82,8 +86,8 @@ const init = async () => {
   const userAlbumLikesService = new UserAlbumLikesService(cacheService);
 
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST !== 'production' ? 'localhost' : '0.0.0.0',
+    port: config.app.port,
+    host: config.app.host !== 'production' ? 'localhost' : '0.0.0.0',
     routes: {
       cors: {
         origin: ['*'],
@@ -101,12 +105,12 @@ const init = async () => {
   ]);
 
   server.auth.strategy('open_music_backend_v3_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.jwt.accessTokenKey,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.jwt.accessTokenAge,
     },
     validate: (artifacts) => ({
       isValid: true,

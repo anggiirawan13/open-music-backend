@@ -1,6 +1,7 @@
 const AlbumsRepository = require('../../../repo/albums');
 const NotFoundError = require('../../../exceptions/NotFoundError');
 const UsersRepository = require('../../../repo/users');
+const autoBind = require('auto-bind');
 
 class UserAlbumLikesHandler {
   constructor(userAlbumLikesService) {
@@ -9,9 +10,7 @@ class UserAlbumLikesHandler {
     this._albumsRepository = new AlbumsRepository();
     this._usersRepository = new UsersRepository();
 
-    this.postUserAlbumLikeHandler = this.postUserAlbumLikeHandler.bind(this);
-    this.getTotalAlbumLikesHandler = this.getTotalAlbumLikesHandler.bind(this);
-    this.deleteUserAlbumLikeHandler = this.deleteUserAlbumLikeHandler.bind(this);
+    autoBind(this);
   }
 
   async postUserAlbumLikeHandler(request, h) {

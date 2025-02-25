@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Pool } = require('pg');
 const StorageRepository = require('../../repo/storage');
+const config = require('../../utils/config');
 
 class StorageService {
   constructor(folder) {
@@ -26,7 +27,7 @@ class StorageService {
   async postCover(cover, albumId) {
     await this._deleteOldCoverFromDirectory(albumId);
 
-    const coverUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${cover}`;
+    const coverUrl = `http://${config.app.host}:${config.app.port}/upload/images/${cover}`;
     await this._storageRepository.updateCover(coverUrl, albumId);
   }
 
