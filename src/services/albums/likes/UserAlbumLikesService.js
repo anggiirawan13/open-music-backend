@@ -32,23 +32,23 @@ class UserAlbumLikesService {
   }
 
   async countAlbumLiked(albumId) {
+    let totalLikes;
+    let source = 'cache';
+
     try {
-      const result = await this._cacheService.get(`liked_album:${albumId}`);
-      return {
-        totalLikes: JSON.parse(result),
-        source: 'cache',
-      };
+      totalLikes = await this._cacheService.get(`liked_album:${albumId}`);
     } catch (error) {
-      const result = await this._likesRepository.countAlbumLiked(albumId);
+      totalLikes = await this._likesRepository.countAlbumLiked(albumId);
+      source = 'postgresql';
 
       await this._cacheService
-        .set(`liked_album:${albumId}`, JSON.stringify(result));
-
-      return {
-        totalLikes: result,
-        source: 'postgresql',
-      };
+        .set(`liked_album:${albumId}`, JSON.stringify(totalLikes));
     }
+
+    return {
+      totalLikes,
+      source,
+    };
   }
 }
 
