@@ -1,10 +1,12 @@
 const fs = require('fs');
 const { Pool } = require('pg');
+const StorageRepository = require('../../repo/storage');
 
 class StorageService {
   constructor(folder) {
     this._folder = folder;
     this._pool = new Pool();
+    this._storageRepository = new StorageRepository();
 
     if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
   }
@@ -25,27 +27,14 @@ class StorageService {
     await this._deleteOldCoverFromDirectory(albumId);
 
     const coverUrl = `${process.env.HOST}:${process.env.PORT}/upload/images/${cover}`;
-    const queryUpdate = {
-      text: 'UPDATE albums SET cover = $1 WHERE id = $2',
-      values: [coverUrl, albumId],
-    };
-
-    await this._pool.query(queryUpdate);
+    await this._storageRepository.updateCover(coverUrl, albumId);
   }
 
   async _deleteOldCoverFromDirectory(albumId) {
-    const queryGetCover = {
-      text: 'SELECT cover FROM albums WHERE id = $1',
-      values: [albumId],
-    };
+    const cover = this._storageRepository.findCover(albumId);
+    if (cover === null) return;
 
-    const result = await this._pool.query(queryGetCover);
-
-    if (result.rows[0].cover === null) {
-      return;
-    }
-
-    const oldCover = result.rows[0].cover.split('/');
+    const oldCover = cover.split('/');
 
     fs.unlinkSync(`${this._folder}/${oldCover[oldCover.length - 1]}`);
   }

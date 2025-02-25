@@ -1,57 +1,34 @@
 const { Pool } = require('pg');
-const { nanoid } = require('nanoid');
 const InvariantError = require('../../../exceptions/InvariantError');
+const UserAlbumLikesRepository = require('../../../repo/albums/likes');
 
 class UserAlbumLikesService {
   constructor(cacheService) {
     this._pool = new Pool();
     this._cacheService = cacheService;
+    this._likesRepository = new UserAlbumLikesRepository();
   }
 
   async likeAlbum(userId, albumId) {
-    const id = `ual-${nanoid(16)}`;
-    const query = {
-      text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
-      values: [id, albumId, userId],
-    };
+    const result = await this._likesRepository.like(userId, albumId);
 
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new InvariantError('Gagal menyukai album');
-    }
+    if (!result) throw new InvariantError('Gagal menyukai album');
 
     await this._cacheService.delete(`liked_album:${albumId}`);
-    return result.rows[0].id;
+    return result;
   }
 
   async unlikeAlbum(userId, albumId) {
-    const query = {
-      text: `
-        DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2
-      `,
-      values: [userId, albumId],
-    };
+    const result = await this._likesRepository.unlike(userId, albumId);
 
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new InvariantError('Gagal untuk batal menyukai album');
-    }
+    if (!result) throw new InvariantError('Gagal untuk batal menyukai album');
 
     await this._cacheService.delete(`liked_album:${albumId}`);
-    return result.rowCount;
+    return result;
   }
 
   async checkUserLikedAlbum(userId, albumId) {
-    const query = {
-      text: 'SELECT * FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
-      values: [userId, albumId],
-    };
-
-    const result = await this._pool.query(query);
-
-    return result.rowCount;
+    return this._likesRepository.checkUserLikedAlbum(userId, albumId);
   }
 
   async countAlbumLiked(albumId) {
@@ -62,18 +39,13 @@ class UserAlbumLikesService {
         source: 'cache',
       };
     } catch (error) {
-      const query = {
-        text: 'SELECT user_album_likes.album_id FROM user_album_likes WHERE album_id = $1',
-        values: [albumId],
-      };
-
-      const result = await this._pool.query(query);
+      const result = await this._likesRepository.countAlbumLiked(albumId);
 
       await this._cacheService
-        .set(`liked_album:${albumId}`, JSON.stringify(result.rowCount));
+        .set(`liked_album:${albumId}`, JSON.stringify(result));
 
       return {
-        totalLikes: result.rowCount,
+        totalLikes: result,
         source: 'postgresql',
       };
     }
